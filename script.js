@@ -4,22 +4,15 @@ const context = canvas.getContext('2d');
 
 context.scale(20, 20);
 
+// Initialize arena and player variables
 const arena = createMatrix(12, 20);
 const player = {
     pos: { x: 5, y: 0 },
     matrix: null,
-    color: null,
 };
 
 const colors = [
-    null,
-    '#FF0D72', // T
-    '#0DC2FF', // O
-    '#0DFF72', // S
-    '#F538FF', // Z
-    '#FF8E0D', // J
-    '#FFE138', // L
-    '#3877FF', // I
+    null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'
 ];
 
 let dropCounter = 0;
@@ -27,6 +20,7 @@ let dropInterval = 1000;
 let lastTime = 0;
 let score = 0;
 
+// Compliments for scoring
 const compliments = [
     'Olet mahtava, Del!', 'Hyvää syntymäpäivää, Del!', 'Sinä loistat, Del!',
     'Ihanaa päivää, Del!', 'Hymyile, Del, se pukee sinua!', 'Paras olet, Del!',
@@ -154,11 +148,9 @@ function arenaSweep() {
 
 function playerReset() {
     const pieces = 'IOTZSJL';
-    const type = pieces[Math.floor(Math.random() * pieces.length)];
-    player.matrix = createPiece(type);
+    player.matrix = createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
     player.pos.y = 0;
     player.pos.x = (arena[0].length / 2) | 0;
-
     if (collide(arena, player)) {
         console.log('Game Over');
         arena.forEach(row => row.fill(0));
@@ -186,15 +178,12 @@ function draw() {
 }
 
 function updateScore() {
-    console.log('Score updated:', score);
     document.getElementById('score').innerText = score;
     const compliment = compliments[Math.floor(Math.random() * compliments.length)];
-    console.log('Compliment:', compliment);
     document.getElementById('compliment').innerText = compliment;
 }
 
 document.addEventListener('keydown', event => {
-    console.log('Key pressed:', event.key);
     if (event.key === 'ArrowLeft') {
         player.pos.x--;
         if (collide(arena, player)) {
@@ -212,6 +201,15 @@ document.addEventListener('keydown', event => {
         if (collide(arena, player)) {
             rotate(player.matrix, -1);
         }
+    } else if (event.code === 'Space') {
+        while (!collide(arena, player)) {
+            player.pos.y++;
+        }
+        player.pos.y--;
+        merge(arena, player);
+        playerReset();
+        arenaSweep();
+        updateScore();
     }
 });
 
